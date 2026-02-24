@@ -1,0 +1,114 @@
+/* Effet d’apparition */
+.card-animate {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.5s cubic-bezier(.45,.13,.48,.87);
+  }
+  .card-animate.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .header-animate {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: all 0.5s cubic-bezier(.45,.13,.48,.87);
+  }
+  .header-animate.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Glass effet login card */
+  .login-card {
+    box-shadow: 0 8px 40px 0 #0002, 0 1.5px 14px 0 #19c7ff26;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+  
+  /* Inputs style iOS/neo-glass */
+  .input-glass {
+    width: 100%;
+    padding: 14px 3rem 14px 3rem; /* padding gauche + droite pour les icônes */
+    font-size: 1rem;
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.09);
+    border-radius: 1rem;
+    outline: none;
+    transition: border 0.25s, box-shadow 0.25s;
+    backdrop-filter: blur(7px);
+    box-sizing: border-box;
+  }
+  .input-glass {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+  
+  .input-glass:focus {
+    border: 1.5px solid #19c7ff;
+    box-shadow: 0 0 0 2px #19c7ff55;
+  }
+  .input-glass:disabled {
+    opacity: 0.5;
+  }
+  .label-glass {
+    position: absolute;
+    left: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a7f3f8;
+    background: transparent;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(.45,.13,.48,.87);
+    padding: 0 4px;
+    height: 22px;       /* Même hauteur que l’icône pour centrage parfait */
+    line-height: 22px;  /* Idem */
+  }
+  
+  .input-glass:focus + .label-glass,
+  .input-glass:not(:placeholder-shown) + .label-glass {
+    top: 4px;              /* Plus haut pour iOS */
+    left: 40px;
+    font-size: 0.78rem;
+    color: #38bdf8;
+    background: rgba(15,15,15,0.80);
+    padding: 0 8px;
+    height: auto;
+    line-height: normal;
+  }
+  
+  /* Loader custom bouton */
+  .loader {
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: #19c7ff;
+  }
+  
+  /* Transition erreur */
+  #loginError {
+    min-height: 16px;
+    opacity: 0;
+  }
+  #loginError.active {
+    opacity: 1;
+  }
+  
+  #togglePassword {
+    background: none;
+    border: none;
+  }
+  .btn-action {
+    display: flex;
+    flex-direction: row; /* <-- important */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    /* ... */
+  }
+  .signup-cta {
+    box-shadow: 0 4px 24px 0 #19c7ff18;
+    border: 1px solid rgba(25,199,255,0.07);
+    background: rgba(255,255,255,0.04);
+  }
+  

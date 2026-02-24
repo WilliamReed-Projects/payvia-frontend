@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    <script>
+
+// Empêche l'accès si déjà connecté
+if (localStorage.getItem("jwt")) {
+  window.location.href = "index.html";
+}
+
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion - NeoWallet</title>
+  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+
+  <!-- BG EFFET VIOLET -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+  <!-- HEADER -->
+  <header class="flex items-center justify-between p-4 border-b border-gray-800 gap-4 header-animate show">
+  <div class="flex items-center gap-4">
+    <a href="index.html" class="text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left w-6 h-6"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <h1 class="text-xl font-bold text-cyan-400">Connexion</h1>
+  </div>
+  <img src="assets/logo-white2.png" alt="Logo" class="h-7 w-auto rounded shadow">
+</header>
+
+  <!-- FORMULAIRE DE CONNEXION -->
+  <main class="flex flex-col items-center justify-center min-h-[80vh] px-4">
+    <div class="glass login-card card-animate w-full max-w-sm p-6 rounded-2xl shadow-xl flex flex-col gap-6">
+      <div class="text-center text-2xl font-bold mb-2">Connecte-toi</div>
+      <form id="loginForm" autocomplete="off" class="flex flex-col gap-4">
+        <!-- EMAIL -->
+ <div class="relative">
+ <i id="iconMail" data-feather="mail" class="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 w-5 h-5 pointer-events-none"></i>
+  <input 
+    type="email"
+    id="email"
+    name="email"
+    required
+    class="input-glass pl-12 peer"
+    placeholder=" "
+    autocomplete="username"
+  />
+  <label for="email" class="label-glass">Adresse email</label>
+</div>
+<div class="relative">
+ <i id="iconLock" data-feather="lock" class="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 w-5 h-5 pointer-events-none"></i>
+  <input
+    type="password"
+    id="password"
+    name="password"
+    required
+    class="input-glass pl-12 pr-12 peer"
+    placeholder=" "
+    autocomplete="current-password"
+  />
+  <label for="password" class="label-glass">Mot de passe</label>
+  <button type="button" id="togglePassword" tabindex="-1" class="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400 focus:outline-none w-7 h-7 flex items-center justify-center">
+    <i data-feather="eye"></i>
+  </button>
+</div>
+
+
+        <!-- Message d'erreur -->
+        <div id="loginError" class="text-pink-400 text-xs h-4 transition-all duration-300"></div>
+        <!-- Bouton -->
+        <button id="loginBtn" type="submit" class="btn-action mt-2 flex items-center justify-center gap-2">
+          <span>Connexion</span>
+          <span id="loginLoader" class="loader hidden ml-2 w-5 h-5 border-2 border-cyan-400 border-solid rounded-full animate-spin"></span>
+        </button>
+      </form>
+      <div class="text-center text-xs text-gray-400 mt-2">
+        Mot de passe oublié ? <a href="#" class="text-cyan-400 underline">Réinitialiser</a>
+      </div>
+    </div>
+
+
+    <div class="glass flex items-center justify-between gap-2 p-4 mt-6 rounded-2xl card-animate signup-cta w-full max-w-sm mx-auto">
+  <span class="text-white text-sm">Pas encore de compte ?</span>
+ <a href="register.html" class="btn-glow-secondary flex items-center gap-1 px-5 py-2 rounded-xl text-cyan-400 font-bold transition hover:scale-105 focus:outline-none">
+  <i data-feather="user-plus"></i> S'inscrire
+</a>
+
+</div>
+
+  </main>
+
+  <script src="js/login.js"></script>
+  <script>feather.replace()</script>
+</body>
+</html>

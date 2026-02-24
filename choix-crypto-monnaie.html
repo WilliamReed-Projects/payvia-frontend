@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+   
+
+  <script>
+(function() {
+  // Récupère le token de l’URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessParam = urlParams.get('access');
+  const accessStorage = localStorage.getItem("payvia_access");
+
+  // Si token absent ou incorrect => redirection
+  if (!accessParam || accessParam !== accessStorage) {
+    window.location.replace("index.html");
+  } else {
+    // Si la page redirige ensuite (ex: vers choix-crypto...), 
+    // repasse ce token dans l’URL !
+    // Par exemple :
+    window.keepAccessToken = accessParam; // optionnel pour tes scripts
+  }
+})();
+</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Choisir votre crypto - payvia</title>
+  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/register.css" />
+  <link rel="stylesheet" href="css/carte-bancaire.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    .payvia-loader-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 15, 24, 0.82);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+    body.noscroll { overflow: hidden !important; }
+  </style>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+ 
+  <!-- HEADER -->
+  <div class="w-full flex flex-col items-center pt-8 header-animate">
+    <div class="text-2xl font-bold text-center mb-1">Paiement <span class="text-cyan-400">payvia</span></div>
+    <div class="text-gray-300 text-base font-medium mb-4">Finalisez votre commande en quelques secondes.</div>
+  </div>
+
+  <main class="p-4 pb-25 appear-anim">
+    <div class="mb-6 text-center">
+      <div class="text-lg text-white font-semibold mb-1">Sélectionnez la cryptomonnaie pour payer</div>
+      <div class="text-base text-gray-400">Votre paiement sera instantané et sécurisé</div>
+    </div>
+    <div class="flex flex-col gap-4 max-w-md mx-auto mt-7">
+  <!-- BTC -->
+  <div class="glass p-4 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.02] transition" onclick="selectCrypto('BTC')">
+    <div class="flex items-center gap-4">
+      <img src="assets/btc.png" class="w-9 h-9 rounded shadow" alt="Bitcoin" />
+      <div>
+        <div class="font-bold text-white text-base">Bitcoin</div>
+        <div class="text-sm text-gray-400">BTC</div>
+      </div>
+    </div>
+    <i data-feather="chevron-right" class="text-cyan-400"></i>
+  </div>
+  <!-- ETH -->
+  <div class="glass p-4 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.02] transition" onclick="selectCrypto('ETH')">
+    <div class="flex items-center gap-4">
+      <img src="assets/eth.png" class="w-9 h-9 rounded shadow" alt="Ethereum" />
+      <div>
+        <div class="font-bold text-white text-base">Ethereum</div>
+        <div class="text-sm text-gray-400">ETH</div>
+      </div>
+    </div>
+    <i data-feather="chevron-right" class="text-cyan-400"></i>
+  </div>
+  <!-- USDT ERC20 -->
+  <div class="glass p-4 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.02] transition" onclick="selectCrypto('USDT-ERC20')">
+    <div class="flex items-center gap-4">
+      <img src="assets/usdt.png" class="w-9 h-9 rounded shadow" alt="USDT ERC20" />
+      <div>
+        <div class="font-bold text-white text-base flex items-center gap-2">
+          USDT <span class="ml-2 text-xs px-2 py-0.5 rounded bg-cyan-700/70 text-cyan-100 font-semibold">ERC20</span>
+        </div>
+        <div class="text-sm text-gray-400">USDT (ERC20)</div>
+      </div>
+    </div>
+    <i data-feather="chevron-right" class="text-cyan-400"></i>
+  </div>
+ 
+  
+  <!-- SOL -->
+  <div class="glass p-4 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.02] transition" onclick="selectCrypto('SOL')">
+    <div class="flex items-center gap-4">
+      <img src="sol.png" class="w-9 h-9 rounded shadow" alt="Solana" />
+      <div>
+        <div class="font-bold text-white text-base">Solana</div>
+        <div class="text-sm text-gray-400">SOL</div>
+      </div>
+    </div>
+    <i data-feather="chevron-right" class="text-cyan-400"></i>
+  </div>
+</div>
+
+  </main>
+
+  <!-- LOADER MODAL -->
+  <div id="payviaLoader" class="payvia-loader-modal hidden">
+    <div class="loader border-t-4 border-cyan-400 border-solid rounded-full w-20 h-20 animate-spin"></div>
+  </div>
+
+<footer class="flex justify-center items-center w-full pb-7 pt-14">
+  <img src="assets/logo-white2.png" alt="payvia" class="opacity-100" style="max-width:160px;">
+</footer>
+
+
+  <script>
+    feather.replace();
+    // Apparition anim
+    setTimeout(() => {
+      document.querySelector('.appear-anim')?.classList.add('show');
+      document.querySelector('.header-animate')?.classList.add('show');
+    }, 80);
+
+    // Simulation des cryptos disponibles (à remplacer par un fetch si tu veux)
+    const cryptos = [
+      { code: "BTC", name: "Bitcoin", icon: "btc.png" },
+      { code: "ETH", name: "Ethereum", icon: "eth.png" },
+      { code: "USDT", name: "Tether (ERC20)", icon: "usdt.png", tag: "ERC20" },
+      { code: "SOL", name: "Solana", icon: "sol.png" }
+    ];
+    // Si tu veux des soldes, ajoute la clé balance à chaque.
+
+    // Génération dynamique des cartes
+    const container = document.getElementById("cryptoList");
+    cryptos.forEach(crypto => {
+      const div = document.createElement("div");
+      div.className = "glass p-4 rounded-xl flex justify-between items-center cursor-pointer hover:scale-[1.02] transition mb-4 card-animate";
+      div.innerHTML = `
+        <div class="flex items-center gap-4">
+          <img src="assets/${crypto.icon}" class="w-9 h-9 rounded shadow" alt="${crypto.code} logo" />
+          <div>
+            <div class="font-bold text-white text-base flex items-center gap-2">${crypto.name}
+              ${crypto.tag ? `<span class="ml-2 text-xs px-2 py-0.5 rounded bg-cyan-700/70 text-cyan-100 font-semibold">${crypto.tag}</span>` : ""}
+            </div>
+            <div class="text-sm text-gray-400">${crypto.code}</div>
+          </div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="feather feather-chevron-right text-cyan-400" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      `;
+      // Au clic : show loader, après 2,5s redirige
+      div.onclick = () => {
+        // Stocke le choix en localStorage si tu veux l’exploiter ensuite :
+        localStorage.setItem('payvia_guest_crypto', crypto.code);
+        document.getElementById('payviaLoader').classList.remove('hidden');
+        document.body.classList.add('noscroll');
+        setTimeout(() => {
+          document.getElementById('payviaLoader').classList.add('hidden');
+          document.body.classList.remove('noscroll');
+          window.location.href = "paiement-final-payvia-wallet.html";
+        }, 2500); // Délai loader ici
+      };
+      container.appendChild(div);
+    });
+  </script>
+
+  <script>
+  function selectCrypto(code) {
+    localStorage.setItem('payvia_guest_crypto', code); // garde le choix si besoin
+    document.getElementById('payviaLoader').classList.remove('hidden');
+    document.body.classList.add('noscroll');
+    setTimeout(() => {
+      document.getElementById('payviaLoader').classList.add('hidden');
+      document.body.classList.remove('noscroll');
+     window.location.href = "paiement-final-payvia-wallet.html?access=" + encodeURIComponent(window.keepAccessToken || accessParam);
+    }, 2000); // délai du loader
+
+    
+
+  }
+  feather.replace();
+</script>
+
+</body>
+</html>

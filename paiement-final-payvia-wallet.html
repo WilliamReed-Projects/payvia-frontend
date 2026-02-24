@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+  
+
+
+  <script>
+(function() {
+  // Récupère le token de l’URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessParam = urlParams.get('access');
+  const accessStorage = localStorage.getItem("payvia_access");
+
+  // Si token absent ou incorrect => redirection
+  if (!accessParam || accessParam !== accessStorage) {
+    window.location.replace("index.html");
+  } else {
+    // Si la page redirige ensuite (ex: vers choix-crypto...), 
+    // repasse ce token dans l’URL !
+    // Par exemple :
+    window.keepAccessToken = accessParam; // optionnel pour tes scripts
+  }
+})();
+</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirmation Paiement - payvia</title>
+  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/register.css" />
+  <link rel="stylesheet" href="css/carte-bancaire.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <!-- QRious pour générer le QR code -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <style>
+    .wait-loader {
+      border: 3px solid #19c7ff60;
+      border-radius: 9999px;
+      border-top: 3px solid #19c7ff;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    /* Ajustement taille carte + logo */
+    .payvia-card {
+      max-width: 340px;
+      width: 100%;
+      padding: 28px 18px 24px 18px;
+    }
+    @media (max-width: 480px) {
+      .payvia-card { padding: 18px 4vw 14px 4vw; max-width: 99vw;}
+    }
+    #cryptoLogo { width: 46px !important; height: 46px !important; }
+  </style>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+
+    
+  
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+ 
+  <!-- Retour et titre -->
+  <header class="flex items-center justify-between p-3 border-b border-gray-800 gap-4 header-animate" style="margin-bottom:-8px;">
+    <div class="flex items-center gap-4">
+      <a href="choix-crypto-monnaie.html" class="text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left w-6 h-6"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <h1 class="text-lg font-bold text-cyan-400">Paiement final</h1>
+    </div>
+    <img src="assets/logo-white2.png" alt="Logo" class="h-6 w-auto rounded shadow">
+  </header>
+
+  <main class="flex flex-col items-center mt-5  px-3">
+    <div class="glass rounded-2xl shadow-2xl payvia-card flex flex-col items-center gap-5">
+      <!-- Logo de la crypto -->
+      <img id="cryptoLogo" src="" alt="Crypto" class="rounded shadow-xl mb-1">
+      <!-- Nom + Tag -->
+      <div class="text-lg font-bold text-white flex items-center gap-2">
+        <span id="cryptoName"></span>
+        <span id="cryptoTag" class="ml-2 text-xs px-2 py-0.5 rounded bg-cyan-700/70 text-cyan-100 font-semibold"></span>
+      </div>
+      <div class="text-gray-400 text-sm mb-1 text-center">Scannez le QR code ou copiez l’adresse pour payer votre commande</div>
+      <!-- QR Code -->
+      <canvas id="qrCanvas" width="135" height="135" class="mx-auto my-1"></canvas>
+      <!-- Adresse -->
+      <div class="bg-white/10 p-2 rounded-xl flex items-center gap-2 w-full justify-between mt-2">
+        <span id="cryptoAddress" class="truncate text-[0.95rem] font-mono"></span>
+        <button id="copyBtn" class="ml-1 text-cyan-400 hover:text-cyan-200" title="Copier l’adresse"><i data-feather="copy"></i></button>
+      </div>
+      <!-- Montant -->
+      <div class="flex flex-col gap-1 items-center mt-2">
+        <div class="text-gray-400 text-sm">Montant à envoyer</div>
+        <div id="cryptoAmount" class="text-xl font-bold text-cyan-400">...</div>
+        <div id="cryptoAmountFiat" class="text-xs text-gray-400 mt-1"></div>
+      </div>
+      <!-- Commande -->
+      <div class="w-full flex justify-between mt-3">
+        <div class="text-xs text-gray-300">Commande :</div>
+        <div id="commandeNum" class="text-xs font-semibold text-white"></div>
+      </div>
+    </div>
+    <!-- Bloc loader en attente sous la carte -->
+    <div class="flex flex-col items-center justify-center pb-5 mt-8">
+      <span class="wait-loader"></span>
+      <span class="text-base text-gray-200 mt-2 font-medium">En attente de réception de votre paiement…</span>
+    </div>
+  </main>
+
+ 
+<footer class="flex justify-center items-center w-full pb-10 pt-8">
+  <img src="assets/logo-white2.png" alt="payvia" class="opacity-100" style="max-width:140px;">
+</footer>
+
+
+  <script>
+    feather.replace();
+
+    // Table de correspondance crypto → nom, tag, icône, adresse
+    const cryptoData = {
+      "BTC":      { name: "Bitcoin",        icon: "btc.png", address: "bc1qa69yytnuq9yk3gkv75sxwjjxw30nt6kj2hms8m" },
+      "ETH":      { name: "Ethereum",       icon: "eth.png", address: "0x9Daf77cc5aA7C36eBEcF1a58d3117F23f0eE2aE7" },
+      "USDT-ERC20":{ name: "USDT",          icon: "usdt.png", address: "0x9Daf77cc5aA7C36eBEcF1a58d3117F23f0eE2aE7", tag: "ERC20" },
+      "SOL":      { name: "Solana",         icon: "sol.png", address: "2HniVz9YybR97QnqggTuWC3gv4q54YDrWP19Ydzn5JK1" }
+    };
+
+    // On récupère le choix de crypto et le total à payer
+    const cryptoCode = localStorage.getItem("payvia_guest_crypto") || "BTC";
+    const totalFiat = parseFloat(localStorage.getItem("totalPanier") || "0");
+    const cmdNum = localStorage.getItem("payvia_guest_commande") || "";
+
+    // Sélection des infos
+    const c = cryptoData[cryptoCode] || cryptoData["BTC"];
+    document.getElementById('cryptoLogo').src = "assets/" + c.icon;
+    document.getElementById('cryptoLogo').alt = c.name;
+    document.getElementById('cryptoName').textContent = c.name;
+    document.getElementById('cryptoTag').textContent = c.tag ? c.tag : "";
+    document.getElementById('cryptoTag').style.display = c.tag ? "inline-block" : "none";
+    document.getElementById('cryptoAddress').textContent = c.address;
+    document.getElementById('commandeNum').textContent = cmdNum;
+
+    // Génère le QR code
+    new QRious({
+      element: document.getElementById('qrCanvas'),
+      value: c.address,
+      size: 135,
+      background: 'transparent',
+      foreground: '#0ff'
+    });
+
+    // Copier adresse
+    document.getElementById('copyBtn').onclick = () => {
+      navigator.clipboard.writeText(c.address);
+      document.getElementById('copyBtn').innerHTML = '<i data-feather="check"></i>';
+      feather.replace();
+      setTimeout(() => {
+        document.getElementById('copyBtn').innerHTML = '<i data-feather="copy"></i>';
+        feather.replace();
+      }, 1500);
+    };
+
+    // Conversion montant en crypto
+    async function updateCryptoAmount() {
+      const apiUrl = "https://mon-backend-node-production.up.railway.app/api/crypto-price?crypto=" + encodeURIComponent(cryptoCode);
+      let amountCrypto = 0;
+      try {
+        const resp = await fetch(apiUrl);
+        const data = await resp.json();
+        if (!data.price) throw new Error("API KO");
+        amountCrypto = totalFiat / data.price;
+        document.getElementById('cryptoAmount').textContent = amountCrypto.toFixed(6) + " " + cryptoCode.replace("USDT-ERC20","USDT").replace("USDT-TRC20","USDT").replace("-ERC20","").replace("-TRC20","");
+        document.getElementById('cryptoAmountFiat').textContent = totalFiat + " €";
+      } catch (e) {
+        document.getElementById('cryptoAmount').textContent = "--";
+        document.getElementById('cryptoAmountFiat').textContent = "Conversion indisponible";
+      }
+    }
+    updateCryptoAmount();
+    // Optionnel : MAJ auto si le total change côté localStorage (ex : modif sur un autre onglet)
+    window.addEventListener("storage", (e) => {
+      if (e.key === "totalPanier") updateCryptoAmount();
+    });
+
+  </script>
+
+  <script>
+
+const cryptoName = (cryptoData[cryptoCode] && cryptoData[cryptoCode].name) || cryptoCode;
+
+// Envoi du mail (une seule fois à l’arrivée sur la page)
+if (email && commandeNum && total) {
+  fetch("https://ton-backend.fr/api/send-pending-payment-mail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email,
+      commandeNum,
+      total,
+      cryptoName,
+      cryptoCode
+    })
+  });
+}
+
+
+  </script>
+</body>
+</html>

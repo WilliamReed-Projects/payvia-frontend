@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+  <script>
+    if (!localStorage.getItem("jwt")) {
+      window.location.replace("login.html");
+    }
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carte Bancaire - NeoWallet</title>
+  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/carte-bancaire.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+  <!-- HEADER -->
+ <header class="flex items-center justify-between p-4 border-b border-gray-800 gap-4 header-animate show">
+  <div class="flex items-center gap-4">
+    <a href="dashboard2.html" class="text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left w-6 h-6"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <h1 class="text-xl font-bold text-cyan-400">Cartes</h1>
+  </div>
+  <img src="assets/logo-white2.png" alt="Logo" class="h-7 w-auto rounded shadow">
+</header>
+
+<section class="p-4 flex flex-col items-center justify-center min-h-[40vh]">
+  <div class="glass rounded-xl p-7 max-w-xs w-full flex flex-col items-center justify-center gap-4 card-animate">
+    <i data-feather="credit-card" class="w-9 h-9 text-cyan-300 opacity-70 mb-2"></i>
+    <div class="text-lg font-bold text-white mb-1 text-center">Aucune carte</div>
+    <div class="text-gray-400 text-center text-sm mb-2">
+      Tu n’as pas encore ajouté de carte à ton compte.<br>
+      Clique sur le bouton “Ajouter” pour commander ta première carte.
+    </div>
+  </div>
+</section>
+
+  <!-- BOUTON AJOUTER -->
+<div class="p-4">
+  <a href="https://payvia.fr/produit.html?name=payvia" class="btn-action w-full inline-block text-center">Ajouter</a>
+</div>
+
+
+  <!-- FENÊTRE CHOIX TYPE DE CARTE -->
+<div id="typeCardModal" class="modal hidden">
+  <div class="modal-box w-full h-full overflow-y-auto text-left">
+   <button id="closeTypeCardModal" class="text-white mb-4">
+  <i data-feather="x"></i>
+</button>
+
+    <h2 class="text-xl font-bold mb-4">Choisissez vos cartes</h2>
+
+    <div class="space-y-4">
+      <div class="glass p-4 rounded-xl flex items-center gap-3 cursor-pointer hover:scale-[1.01] transition type-card-choice">
+  <img src="physique.png" class="w-10  rounded" alt="Physique">
+  <div>
+    <div class="font-semibold">Physique</div>
+    <p class="text-sm text-gray-400">Personnalisez votre carte plastique physique.</p>
+  </div>
+</div>
+<div class="glass p-4 rounded-xl flex items-center gap-3 cursor-pointer hover:scale-[1.01] transition type-card-choice">
+  <img src="virtuelle.png" class="w-10 " alt="Virtuelle">
+  <div>
+    <div class="font-semibold">Virtuelle</div>
+    <p class="text-sm text-gray-400">Carte sécurisée et gratuite utilisable instantanément.</p>
+  </div>
+</div>
+
+
+    </div>
+  </div>
+</div>
+
+<!-- FENÊTRE COULEUR DE LA CARTE -->
+<div id="colorCardModal" class="modal hidden">
+  <div class="modal-box w-full h-full text-center">
+   <button id="closeColorCardModal" class="absolute top-4 left-4 text-white">
+  <i data-feather="arrow-left"></i>
+</button>
+
+    <div class="mt-12">
+      <div id="previewCard" class="card-preview mx-auto w-60 h-36 rounded-xl relative overflow-hidden transition-all duration-500">
+  <img src="logo.png" alt="Logo Neozia" class="absolute top-1 right-1 w-16 h-16 object-contain" />
+  <div class="absolute bottom-2 right-1">
+    <img src="Mastercard-Logo.wine.png" alt="Mastercard" class=" h-12 object-contain" />
+  </div>
+</div>
+
+      <div class="flex justify-center gap-4 mt-6">
+        <div class="w-6 h-6 rounded-full bg-gray-700 border-2 border-white cursor-pointer color-dot" data-color="#374151"></div>
+        <div class="w-6 h-6 rounded-full bg-pink-400 border-2 border-white cursor-pointer color-dot" data-color="#f472b6"></div>
+        <div class="w-6 h-6 rounded-full bg-purple-400 border-2 border-white cursor-pointer color-dot" data-color="#a78bfa"></div>
+      </div>
+<button id="cmdCardBtn" class="btn-action w-full mt-6">Commander ma carte</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- FENÊTRE NOMMER LA CARTE -->
+<div id="nameCardModal" class="modal hidden">
+  <div class="modal-box w-full h-full text-left">
+    <div class="flex justify-between mb-4">
+      <h2 class="text-lg font-bold">Nommer la carte</h2>
+      <button id="closeNameCardModal" class="text-cyan-400 text-sm">Ignorer</button>
+
+    </div>
+    <input type="text" placeholder="Ma carte personnalisée" class="w-full p-3 rounded-lg bg-white/10 text-white mb-4" />
+<button id="btnShowFinalModal" class="btn-action w-full">Suivant</button>
+
+  </div>
+</div>
+<!-- FENÊTRE FINALE D'INFOS -->
+<div id="finalCardModal" class="modal hidden">
+  <div class="modal-box w-full h-full overflow-y-auto text-left space-y-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold">Finaliser la commande</h2>
+      <a href="carte-bancaire.html"
+         class="text-white text-2xl hover:text-cyan-400 transition ml-4"
+         title="Fermer">
+        <i data-feather="x"></i>
+      </a>
+    </div>
+
+    <!-- MONTANT -->
+    <div class="glass p-4 rounded-xl space-y-2">
+      <label for="amountInput" class="block font-semibold">Montant de la carte</label>
+      <div class="relative">
+        <input
+          id="amountInput"
+          type="number"
+          min="100"
+          max="3000"
+          placeholder="Montant"
+          class="w-full p-3 rounded-lg bg-white/10 text-white text-lg font-semibold pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+          autocomplete="off"
+          inputmode="numeric"
+        />
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none select-none">€</span>
+      </div>
+      <p id="amountNote" class="text-sm text-pink-400 hidden mt-1">Montant minimum 100 € pour créer une carte.</p>
+    </div>
+<!-- SÉLECTION CRYPTO MODERNE -->
+<div class="glass p-4 rounded-xl space-y-3">
+  <div class="text-sm text-gray-400">
+    Solde total <span id="walletTotal" class="font-medium text-white">...</span>
+  </div>
+  <label class="block font-semibold">Choisissez votre crypto</label>
+  <div class="relative z-50">
+    <button id="cryptoSelectBtn" type="button"
+      class="glass flex items-center gap-3 w-full p-3 rounded-lg text-white font-medium text-base justify-between cursor-pointer select-none"
+      aria-haspopup="listbox" aria-expanded="false">
+      <img id="cryptoSelectIcon" src="btc.png" class="w-6 h-6" alt="Logo crypto">
+      <span id="cryptoSelectText">...</span>
+      <i data-feather="chevron-down" class="ml-auto text-cyan-300"></i>
+    </button>
+    <!-- Dropdown réel déplacé en JS : -->
+    <div id="cryptoDropdown"></div>
+  </div>
+</div>
+
+
+    <!-- PAIEMENT FRACTIONNÉ -->
+    <div class="glass p-4 rounded-xl space-y-3">
+      <label class="block font-semibold">Paiement en plusieurs fois</label>
+      <div class="relative w-full pt-4 pb-2">
+        <input 
+          type="range" 
+          id="fractionSlider" 
+          min="1" max="4" step="1" value="1"
+          class="ios-slider w-full"
+        />
+      </div>
+      <div class="text-center text-sm text-gray-300 mt-2">
+        Paiement en <span id="fractionCount">1</span>x
+      </div>
+      <div id="fractionNote" class="text-center text-pink-400 text-xs mt-1 hidden">
+        Montant minimum 800 € pour le paiement en plusieurs fois.
+      </div>
+      <div id="installments" class="text-white space-y-1 text-sm font-medium mt-1"></div>
+    </div>
+
+    <!-- CONDITIONS -->
+   <div class="glass p-4 rounded-xl space-y-3">
+  <button id="createCardBtn" class="btn-action w-full opacity-40 cursor-not-allowed transition-all" disabled>
+    Créer
+  </button>
+  <div class="text-xs text-gray-400 mt-2 text-center leading-snug max-w-xs mx-auto">
+    En cliquant sur <span class="font-semibold text-white">Créer</span>, vous acceptez irrévocablement les <a href="terms.html" class="underline text-cyan-400 hover:text-cyan-300 transition">Conditions Générales d’Utilisation</a>, vous renoncez à votre droit de rétractation et vous vous engagez à régler la totalité des paiements aux dates prévues, sans exception.
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- MODALE LOADER -->
+<div id="loaderModal" class="modal hidden">
+  <div class="modal-box w-full h-full flex flex-col justify-center items-center text-center space-y-4">
+    <div class="loader border-t-4 border-cyan-400 border-solid rounded-full w-16 h-16 animate-spin"></div>
+    <p class="text-lg font-semibold">Création de votre carte...</p>
+  </div>
+</div>
+
+<!-- FENÊTRE APPLE PAY -->
+<div id="applePayModal" class="modal hidden">
+  <div class="modal-box w-full h-full flex flex-col justify-center items-center text-center space-y-6">
+   <div id="previewAppleCard" class="w-64 h-40 rounded-xl text-white font-semibold text-lg shadow-lg"></div>
+
+    <div>
+      <h2 class="text-2xl font-extrabold">AJOUTEZ VOTRE<br>CARTE À APPLE PAY !</h2>
+      <p class="text-sm text-gray-400 mt-2">Ajoutez votre carte sur Apple Pay pour payer en magasin<br>et en ligne avec votre application.</p>
+    </div>
+    <div class="w-full px-6 space-y-3">
+      <button class="btn-action w-full flex items-center justify-center gap-2">
+        <img src="applepay.png" class="h-12" />
+      </button>
+      <button id="dismissAppleModal" class="w-full py-3 rounded-xl bg-white/10 text-white text-sm">
+  Pas maintenant
+</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FENÊTRE DÉTAILS CARTE -->
+<div id="cardDetailsModal" class="modal hidden">
+  <div class="modal-box w-full h-full relative flex flex-col justify-start items-center text-center space-y-6 px-4 py-6">
+ <a href="dashboard2.html" class="absolute top-4 left-4 text-white" id="closeCardDetailsModal">
+  <i data-feather="arrow-left"></i>
+</a>
+
+
+<!-- RECTO -->
+<div id="cardFront" class="relative w-64 h-40 rounded-xl text-white font-semibold text-lg shadow-lg p-4 flex flex-col justify-end items-start transition-all duration-500 bg-[rgb(167,139,250)]">
+  <!-- Logo Neozia -->
+  <img src="logo.png" alt="Logo Neozia" class="absolute top-2 right-2 w-14 h-14 object-contain z-10" />
+
+  <!-- Texte aligné à gauche -->
+  <div class="z-10 text-left">
+    <div class="text-sm mb-1">Virtuelle</div>
+    <div class="text-lg tracking-widest">•• 9580</div>
+  </div>
+
+  <!-- Logo Mastercard -->
+  <img src="Mastercard-Logo.wine.png" alt="Mastercard" class="absolute bottom-2 right-2 h-10 object-contain z-10" />
+</div>
+
+
+<div id="cardBack" class="relative w-64 h-40 rounded-xl text-white font-semibold shadow-lg hidden flex flex-col justify-between transition-all duration-500 p-4 bg-[rgb(167,139,250)]">
+  
+  <!-- Bande magnétique -->
+  <div class="absolute top-3 left-0 w-full h-6 bg-black/40 rounded-tr-md rounded-br-md"></div>
+
+  <!-- Numéro de carte -->
+  <div class="mt-8 flex justify-between items-center w-full">
+    <div class="grid grid-cols-3 gap-x-4 text-[17px] tracking-wider font-mono leading-tight text-right" id="cardNumber">
+  <div>5354</div>
+  <div>5627</div>
+  <div>
+    <div>8666</div>
+    <div class="pt-1">9580</div> <!-- ⬅️ Juste en dessous -->
+  </div>
+</div>
+
+    <button id="copyCardNumberBtn" class="p-1 text-cyan-300 hover:text-cyan-200 text-sm" title="Copier le numéro">
+      <i data-feather="copy" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- Expiration + CVV -->
+  <div class="flex justify-between items-center w-full">
+    <div>
+      <div class="text-xs uppercase text-white/80">Expiration</div>
+      <div class="text-base font-mono tracking-wider">06/30</div>
+    </div>
+    <div class="text-right flex items-center gap-2">
+      <div>
+        <div class="text-xs uppercase text-white/80">CVV</div>
+        <div class="text-base font-mono tracking-wider" id="cardCVV">553</div>
+      </div>
+      <button id="copyCVVBtn" class="text-cyan-300 hover:text-cyan-200 text-sm" title="Copier le CVV">
+        <i data-feather="copy" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+    <!-- ACTIONS -->
+    <div class="glass p-4 rounded-xl w-full space-y-4">
+      <div class="flex justify-around">
+        <button id="toggleInfoBtn" class="flex flex-col items-center gap-1">
+          <i data-feather="eye"></i>
+          <span class="text-xs">Afficher les informations</span>
+        </button>
+        <button id="freezeCardBtn" class="flex flex-col items-center gap-1">
+          <i data-feather="activity"></i>
+          <span class="text-xs">Geler</span>
+        </button>
+        <button class="flex flex-col items-center gap-1">
+          <i data-feather="settings"></i>
+          <span class="text-xs">Paramètres</span>
+        </button>
+      </div>
+
+      <div class="text-sm text-gray-400 bg-white/5 p-2 rounded-md text-center">
+        Aucune transaction pour le moment
+      </div>
+    </div>
+
+    <!-- AJOUT APPLE PAY -->
+    <div class="w-full space-y-2">
+      <button class="btn-action w-full flex items-center justify-center gap-2">
+        <img src="applepay.png" class="h-12" />
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- NAVIGATION FOOTER -->
+  <nav class="glass nav-footer-modern">
+    <a href="dashboard2.html" class="nav-item-modern">
+      <i data-feather="folder"></i>
+      <span>Portefeuille</span>
+    </a>
+    <a href="carte-bancaire.html" class="nav-item-modern active">
+      <i data-feather="credit-card"></i>
+      <span>Cartes</span>
+    </a>
+   
+  </nav>
+
+  <script>
+  feather.replace();
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      document.querySelector('.card-animate')?.classList.add('show');
+      document.querySelector('.header-animate')?.classList.add('show');
+    }, 80);
+  });
+</script>
+
+<div id="cryptoDropdown"
+  class="fixed left-0 top-0 z-[99999] w-full max-w-xs mx-auto rounded-xl bg-[#18182c] glass shadow-xl border border-white/10 hidden"></div>
+
+
+<script src="js/carte-bancaire.js"></script>
+</body>
+</html>

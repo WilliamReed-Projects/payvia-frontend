@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Laissez votre témoignage – payvia</title>
+  <meta name="description" content="Déposez votre avis sur payvia. Votre expérience compte ! Témoignage soumis à validation avant publication.">
+  <link rel="stylesheet" href="css/connexion.css"/>
+  <style>
+    .temoignage-container {
+      max-width: 430px; margin: 26px auto 0 auto; background: #fff;
+      border-radius: 20px; box-shadow: 0 6px 38px #13b88811;
+      padding: 28px 17px 21px 17px;
+    }
+    .temoignage-title {
+      text-align: center; font-size: 1.19em; color: #233559; font-weight: 700; margin-bottom: 7px;
+    }
+    .temoignage-form label { font-weight: 500; color: #233559; margin-bottom: 4px; display: block;}
+    .temoignage-form input, .temoignage-form select, .temoignage-form textarea {
+      width: 100%; padding: 11px; margin-bottom: 14px; border: 2px solid #5063B1;
+      border-radius: 11px; font-size: 1em; font-family: inherit; color: #222;
+      background: #f8f9fb; outline: none; transition: border .16s, background .16s;
+    }
+    .temoignage-form textarea { min-height: 84px; resize: vertical;}
+    .etoiles-note {
+      display: flex; gap: 8px; margin-bottom: 15px;
+      justify-content: center; font-size: 1.55em; cursor: pointer;
+    }
+    .etoile { color: #B8B7B0; transition: color .15s;}
+    .etoile.active, .etoile:hover { color: #FFD600;}
+    .temoignage-btn {
+      width: 100%; background: linear-gradient(90deg,#233559 0%,#5063B1 100%);
+      color: #fff; font-weight: 700; border: none; border-radius: 13px;
+      font-size: 1.1em; padding: 14px 0; margin-top: 8px;
+      cursor: pointer; box-shadow: 0 2px 11px #5063B116;
+      letter-spacing: .01em; transition: background .16s;
+    }
+    .temoignage-btn:active { background: #233559;}
+    .temoignage-error {
+      color: #e91e63; font-size: .98em; margin-bottom: 9px; min-height: 18px;
+    }
+    .popup-thanks {
+      display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(23, 184, 136, 0.07); z-index: 1000;
+      justify-content: center; align-items: center;
+    }
+    .popup-thanks-content {
+      background: #fff; border-radius: 22px; box-shadow: 0 8px 34px #13b88833;
+      padding: 42px 24px; max-width: 320px; text-align: center;
+    }
+    .popup-thanks-content h3 { color: #13B888; font-size: 1.23em; }
+    .popup-thanks-content p { margin: 10px 0 0 0; font-size: 1.06em;}
+    @media (max-width: 540px) {
+      .temoignage-container { border-radius: 12px; padding: 14px 4vw 10px 4vw;}
+      .popup-thanks-content { padding: 22px 8px; border-radius: 13px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="temoignage-container">
+    <h1 class="temoignage-title">Laissez votre témoignage</h1>
+    <form class="temoignage-form" id="form-temoignage" autocomplete="off">
+      <div class="temoignage-error" id="temoignage-error"></div>
+
+      <label for="nom">Nom*</label>
+      <input type="text" id="nom" name="nom" maxlength="30" pattern="[A-Za-zÀ-ÿ\s\-']{2,30}" required autocomplete="family-name" />
+
+      <label for="prenom">Prénom*</label>
+      <input type="text" id="prenom" name="prenom" maxlength="30" pattern="[A-Za-zÀ-ÿ\s\-']{2,30}" required autocomplete="given-name" />
+
+      <label for="date_achat">Date d'achat (optionnel)</label>
+      <input type="date" id="date_achat" name="date_achat" autocomplete="off" />
+
+      <label for="montant">Montant de l'achat (optionnel)</label>
+      <input type="number" id="montant" name="montant" min="0" step="0.01" placeholder="Ex : 100" />
+
+      <label for="produit">Produit commandé (optionnel)</label>
+      <input type="text" id="produit" name="produit" maxlength="80" pattern="[A-Za-zÀ-ÿ0-9\s\-',.]{0,80}" />
+
+      <label for="commentaire">Commentaire*</label>
+      <textarea id="commentaire" name="commentaire" maxlength="600" minlength="5" required placeholder="Votre avis, votre expérience..."></textarea>
+
+      <label>Note*</label>
+      <div class="etoiles-note" id="etoiles-note">
+        <span class="etoile" data-note="1">&#9733;</span>
+        <span class="etoile" data-note="2">&#9733;</span>
+        <span class="etoile" data-note="3">&#9733;</span>
+        <span class="etoile" data-note="4">&#9733;</span>
+        <span class="etoile" data-note="5">&#9733;</span>
+      </div>
+
+      <input type="hidden" name="note" id="note" value="0" />
+      <button type="submit" class="temoignage-btn">Envoyer mon témoignage</button>
+    </form>
+  </div>
+
+  <div class="popup-thanks" id="popup-thanks">
+    <div class="popup-thanks-content">
+      <h3>Merci pour votre témoignage !</h3>
+      <p>Votre avis a bien été envoyé à notre équipe.<br>
+      <span style="color:#13B888;">Redirection automatique...</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Étoiles cliquables
+    const etoiles = document.querySelectorAll('.etoile');
+    const noteInput = document.getElementById('note');
+    etoiles.forEach(e => {
+      e.onclick = () => {
+        noteInput.value = e.dataset.note;
+        etoiles.forEach(s => s.classList.toggle('active', s.dataset.note <= e.dataset.note));
+      };
+    });
+
+    // Validation caractères spéciaux
+    function validNomPrenom(val) {
+      return /^[A-Za-zÀ-ÿ\s\-']{2,30}$/.test(val);
+    }
+    function validProduit(val) {
+      return !val || /^[A-Za-zÀ-ÿ0-9\s\-',.]{0,80}$/.test(val);
+    }
+
+    // Envoi formulaire AJAX
+    document.getElementById('form-temoignage').onsubmit = async function(e){
+      e.preventDefault();
+      const nom = document.getElementById('nom').value.trim();
+      const prenom = document.getElementById('prenom').value.trim();
+      const date_achat = document.getElementById('date_achat').value || null;
+      const montant = document.getElementById('montant').value || null;
+      const produit = document.getElementById('produit').value.trim();
+      const commentaire = document.getElementById('commentaire').value.trim();
+      const note = parseInt(document.getElementById('note').value, 10);
+
+      // Validation JS avant envoi
+      if (!validNomPrenom(nom)) return showErr("Nom invalide (lettres et tirets seulement)");
+      if (!validNomPrenom(prenom)) return showErr("Prénom invalide (lettres et tirets seulement)");
+      if (!validProduit(produit)) return showErr("Produit invalide (lettres, chiffres, virgule, point, tiret)");
+      if (!commentaire || commentaire.length < 5) return showErr("Commentaire trop court");
+      if (isNaN(note) || note < 1 || note > 5) return showErr("Merci de donner une note entre 1 et 5 étoiles");
+
+      // Envoi
+      try {
+        const resp = await fetch('https://mon-backend-node-production.up.railway.app/temoignage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nom, prenom, date_achat, montant, produit, commentaire, note })
+        });
+        const data = await resp.json();
+        if (!resp.ok) return showErr(data.error || "Erreur d'envoi");
+        document.getElementById('popup-thanks').style.display = "flex";
+        setTimeout(() => window.location.href = "https://payvia.fr", 3200);
+      } catch (e) {
+        showErr("Erreur réseau");
+      }
+    };
+
+    function showErr(msg) {
+      document.getElementById('temoignage-error').innerText = msg;
+    }
+  </script>
+</body>
+</html>

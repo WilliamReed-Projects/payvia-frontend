@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    
+  <script>
+(function() {
+  // Récupère le token de l’URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessParam = urlParams.get('access');
+  const accessStorage = localStorage.getItem("payvia_access");
+
+  // Si token absent ou incorrect => redirection
+  if (!accessParam || accessParam !== accessStorage) {
+    window.location.replace("index.html");
+  } else {
+    // Si la page redirige ensuite (ex: vers choix-crypto...), 
+    // repasse ce token dans l’URL !
+    // Par exemple :
+    window.keepAccessToken = accessParam; // optionnel pour tes scripts
+  }
+})();
+</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paiement - payvia</title>
+  <!-- Style comme register -->
+  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/register.css" />
+  <!-- Loader style carte-bancaire -->
+  <link rel="stylesheet" href="css/carte-bancaire.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    /* Masque le scroll sur loader */
+    body.noscroll { overflow: hidden !important; }
+    .payvia-loader-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 15, 24, 0.82);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+
+    /* Masque l’icône quand le champ est focus ou rempli */
+.relative:has(input.input-glass:focus) .input-icon,
+.relative:has(input.input-glass:not(:placeholder-shown)) .input-icon {
+  opacity: 0 !important;
+  transition: opacity 0.18s;
+}
+
+footer {
+  background: rgba(30,30,40,0.08);
+  border-radius: 1.2rem 1.2rem 0 0;
+  margin-top: 32px;
+  box-shadow: 0 0 24px #19c7ff08;
+}
+footer img {
+  filter: drop-shadow(0 2px 6px #181c30cc);
+}
+
+
+  </style>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <!-- BG dégradé comme register -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+  <!-- HEADER -->
+  <div class="w-full flex flex-col items-center pt-8 header-animate">
+    <div class="text-2xl font-bold text-center mb-1">Paiement <span class="text-cyan-400">payvia</span></div>
+    <div class="text-gray-300 text-base font-medium mb-4">Finalisez votre commande en quelques secondes.</div>
+  </div>
+
+  <main class="w-full flex flex-col items-center mt-10">
+    <section id="step1" class="glass card-animate form-section-custom w-[90%] max-w-md mx-auto mt-1 flex flex-col gap-5 px-6 py-8 rounded-2xl shadow-2xl">
+      <form id="emailForm" class="flex flex-col gap-5" autocomplete="off">
+        <label for="payviaEmail" class="text-base font-semibold mb-1 text-white">Votre e-mail</label>
+        <div class="relative mb-2">
+          <input type="email" id="payviaEmail" required class="input-glass pr-12 text-base" placeholder=" "/>
+          <i data-feather="mail" class="input-icon"></i>
+        </div>
+        <button type="submit" class="btn-action w-full text-base font-semibold flex items-center justify-center gap-2 py-3 mt-2">
+          Continuer
+        </button>
+      </form>
+    </section>
+
+    <section id="step2" class="glass card-animate form-section-custom w-[90%] max-w-md mx-auto mt-1 flex-col gap-5 px-6 py-8 rounded-2xl shadow-2xl hidden">
+      <form id="nameForm" class="flex flex-col gap-5" autocomplete="off">
+        <label class="text-base font-semibold mb-1 text-white">Nom & Prénom</label>
+        <div class="flex gap-2">
+          <div class="relative w-1/2">
+            <input type="text" id="payviaPrenom" maxlength="30" required pattern="^[A-Za-zÀ-ÿ -]{1,30}$" class="input-glass peer" placeholder=" "/>
+            <label for="payviaPrenom" class="label-glass">Prénom</label>
+          </div>
+          <div class="relative w-1/2">
+            <input type="text" id="payviaNom" maxlength="30" required pattern="^[A-Za-zÀ-ÿ -]{1,30}$" class="input-glass peer" placeholder=" "/>
+            <label for="payviaNom" class="label-glass">Nom</label>
+          </div>
+        </div>
+        <button type="submit" class="btn-action w-full text-base font-semibold flex items-center justify-center gap-2 py-3 mt-2">
+          Continuer
+        </button>
+      </form>
+    </section>
+
+    <section id="step3" class="glass card-animate form-section-custom w-[90%] max-w-md mx-auto mt-1 flex-col gap-5 px-6 py-8 rounded-2xl shadow-2xl hidden" style="overflow: visible;">
+      <form id="addressForm" class="flex flex-col gap-5" autocomplete="off">
+        <label class="text-base font-semibold mb-1 text-white">Adresse de facturation</label>
+        <div class="relative">
+          <input type="text" id="payviaAdresse" maxlength="50" required class="input-glass peer" placeholder=" "/>
+          <label for="payviaAdresse" class="label-glass">Adresse</label>
+        </div>
+        <div class="flex gap-2">
+          <div class="relative w-1/2">
+            <input type="text" id="payviaVille" maxlength="30" required class="input-glass peer" placeholder=" "/>
+            <label for="payviaVille" class="label-glass">Ville</label>
+          </div>
+          <div class="relative w-1/2">
+            <input type="text" id="payviaCP" maxlength="10" required pattern="^[0-9]{4,10}$" class="input-glass peer" placeholder=" "/>
+            <label for="payviaCP" class="label-glass">Code postal</label>
+          </div>
+        </div>
+        <div class="relative">
+          <input type="text" id="payviaPays" class="input-glass peer" value="France" readonly disabled style="cursor:not-allowed; opacity:0.85;"/>
+          <label for="payviaPays" class="label-glass">Pays</label>
+        </div>
+        <button type="submit" class="btn-action w-full text-base font-semibold flex items-center justify-center gap-2 py-3 mt-2">
+          Valider et payer
+        </button>
+      </form>
+      <!-- Bloc infos en bas -->
+      <div class="flex flex-col items-center mt-4 gap-2">
+        <div class="text-gray-400 text-base">Total à payer :</div>
+        <div class="text-2xl font-bold text-cyan-400" id="afficheTotal">-- €</div>
+        <div class="text-xs text-gray-400 mt-1">Commande <span id="commandeNum" class="font-semibold text-white"></span></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LOADER MODAL STYLE CARTE-BANCAIRE -->
+  <div id="payviaLoader" class="payvia-loader-modal hidden">
+    <div class="loader border-t-4 border-cyan-400 border-solid rounded-full w-20 h-20 animate-spin"></div>
+  </div>
+
+<footer class="flex justify-center items-center w-full pb-7 pt-14">
+  <img src="assets/logo-white2.png" alt="payvia" class="opacity-100" style="max-width:160px;">
+</footer>
+
+  <script>
+    feather.replace();
+    // Animation apparition carte
+    setTimeout(() => {
+      document.querySelector('.header-animate')?.classList.add('show');
+      document.querySelector('.card-animate')?.classList.add('show');
+    }, 90);
+
+    // Utilitaires
+    function randomOrderNum() {
+      return "#PDR" + Math.floor(100000 + Math.random()*900000);
+    }
+    function showLoader() {
+      document.getElementById('payviaLoader').classList.remove('hidden');
+      document.body.classList.add('noscroll');
+    }
+    function hideLoader() {
+      document.getElementById('payviaLoader').classList.add('hidden');
+      document.body.classList.remove('noscroll');
+    }
+
+    // Etape 1 -> 2
+    document.getElementById('emailForm').onsubmit = e => {
+      e.preventDefault();
+      const email = document.getElementById('payviaEmail').value.trim();
+      if(!email) return;
+      // Save for next
+      localStorage.setItem('payvia_guest_email', email);
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      setTimeout(() => document.getElementById('step2').classList.add('show'), 40);
+    };
+
+    // Etape 2 -> 3 (avec effet agrandissement)
+    document.getElementById('nameForm').onsubmit = e => {
+      e.preventDefault();
+      const prenom = document.getElementById('payviaPrenom').value.trim();
+      const nom = document.getElementById('payviaNom').value.trim();
+      if(!prenom || !nom) return;
+      localStorage.setItem('payvia_guest_prenom', prenom);
+      localStorage.setItem('payvia_guest_nom', nom);
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+      setTimeout(() => document.getElementById('step3').classList.add('show'), 40);
+      // Affiche le total et numéro de commande ici
+      const total = localStorage.getItem("totalPanier") || "--";
+      document.getElementById('afficheTotal').textContent = total + " €";
+      const cmdNum = randomOrderNum();
+      document.getElementById('commandeNum').textContent = cmdNum;
+      localStorage.setItem("payvia_guest_commande", cmdNum);
+    };
+
+    // Etape 3 -> loader puis redirige
+    document.getElementById('addressForm').onsubmit = e => {
+      e.preventDefault();
+      // Champs
+      const adresse = document.getElementById('payviaAdresse').value.trim();
+      const ville = document.getElementById('payviaVille').value.trim();
+      const cp = document.getElementById('payviaCP').value.trim();
+      const pays = "France";
+      // Save in localStorage pour page suivante
+      localStorage.setItem('payvia_guest_adresse', adresse);
+      localStorage.setItem('payvia_guest_ville', ville);
+      localStorage.setItem('payvia_guest_cp', cp);
+      localStorage.setItem('payvia_guest_pays', pays);
+      // Show loader puis redirige après 4s
+      showLoader();
+      setTimeout(() => {
+        hideLoader();
+        window.location.href = "choix-crypto-monnaie.html?access=" + encodeURIComponent(window.keepAccessToken || accessParam);
+
+      }, 4000);
+    };
+  </script>
+
+<script>
+  // Masque l’icône dans l’input si focus ou rempli (comme sur register)
+  document.querySelectorAll('.relative').forEach(function(container) {
+    const input = container.querySelector('input.input-glass');
+    const icon = container.querySelector('i.input-icon, i[data-feather].input-icon');
+    if (input && icon) {
+      function updateIcon() {
+        icon.style.opacity = (input.value.length > 0 || document.activeElement === input) ? '0' : '1';
+      }
+      input.addEventListener('input', updateIcon);
+      input.addEventListener('focus', updateIcon);
+      input.addEventListener('blur', updateIcon);
+      // Au chargement aussi
+      updateIcon();
+    }
+  });
+</script>
+
+</body>
+</html>

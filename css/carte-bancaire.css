@@ -1,0 +1,254 @@
+.card-animate {
+    transition: all 0.4s ease;
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  .card-animate.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .glass-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .glass-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0,255,255,0.1);
+  }
+  .header-animate {
+    transition: all 0.4s ease;
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  .header-animate.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  /* Loader custom */
+  .loader {
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+  }
+  /* Effet Apple/iOS Slide */
+  .modal-box {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: all 0.44s cubic-bezier(.45,.13,.48,.87);
+    pointer-events: none;
+    z-index: 10;
+    will-change: transform, opacity;
+    position: relative;
+  }
+  .modal.show .modal-box {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    z-index: 20;
+  }
+  /* Animation de sortie slide-out (retour arrière) */
+  .modal.slide-out .modal-box {
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.36s cubic-bezier(.45,.13,.48,.87);
+    pointer-events: none;
+    z-index: 10;
+  }
+  /* Input montant avec € */
+  input[type="number"]::-webkit-inner-spin-button, 
+  input[type="number"]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+  }
+  input[type="number"] {
+    appearance: textfield;
+  }
+  
+  /* Slider iOS */
+  .ios-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg,#19c7ff 0%,#8e76ff 100%);
+    border-radius: 12px;
+    outline: none;
+    box-shadow: 0 2px 16px 0 #19c7ff66;
+    transition: background 0.3s;
+  }
+  .ios-slider:disabled {
+    opacity: 0.3;
+    background: #555 !important;
+    box-shadow: none;
+  }
+  .ios-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 18px 0 #19c7ff80;
+    border: 3px solid #19c7ff;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s;
+  }
+  .ios-slider:disabled::-webkit-slider-thumb {
+    background: #888;
+    border-color: #aaa;
+    cursor: not-allowed;
+  }
+  .ios-slider::-moz-range-thumb {
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 18px 0 #19c7ff80;
+    border: 3px solid #19c7ff;
+    cursor: pointer;
+  }
+  .ios-slider::-ms-thumb {
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 18px 0 #19c7ff80;
+    border: 3px solid #19c7ff;
+    cursor: pointer;
+  }
+  .slider-bullet {
+    position: absolute;
+    top: -38px;
+    left: 0;
+    width: 40px;
+    height: 30px;
+    background: rgba(30,40,65,0.98);
+    color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px 0 #19c7ff44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: left 0.35s cubic-bezier(.44,.13,.48,.87);
+    z-index: 10;
+  }
+  /* Slider iOS minimal et glassmorphism */
+  .ios-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg,rgba(25,199,255,0.3) 0%,rgba(142,118,255,0.3) 100%);
+    border-radius: 20px;
+    outline: none;
+    box-shadow: 0 3px 30px 0 #19c7ff24;
+    position: relative;
+    transition: background 0.3s;
+    backdrop-filter: blur(6px);
+  }
+  .ios-slider:disabled {
+    opacity: 0.4;
+    background: #555 !important;
+    box-shadow: none;
+  }
+  .ios-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 10px 0 #19c7ff50;
+    border: 2px solid #19c7ff;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s;
+  }
+  .ios-slider:disabled::-webkit-slider-thumb {
+    background: #aaa;
+    border-color: #bbb;
+    cursor: not-allowed;
+  }
+  .ios-slider::-moz-range-thumb,
+  .ios-slider::-ms-thumb {
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 10px 0 #19c7ff50;
+    border: 2px solid #19c7ff;
+    cursor: pointer;
+  }
+  .ios-slider:disabled::-moz-range-thumb,
+  .ios-slider:disabled::-ms-thumb {
+    background: #aaa;
+    border-color: #bbb;
+    cursor: not-allowed;
+  }
+  .ios-slider::-ms-fill-lower,
+  .ios-slider::-webkit-slider-runnable-track,
+  .ios-slider::-moz-range-track {
+    background: transparent;
+  }
+  
+  #cryptoDropdown {
+    min-width: 210px;
+    max-height: 250px;
+    overflow-y: auto;
+    animation: fadeInDropdown 0.23s cubic-bezier(.44,1.36,.52,1);
+  }
+  @keyframes fadeInDropdown {
+    from { opacity: 0; transform: translateY(16px) scale(0.98);}
+    to { opacity: 1; transform: translateY(0) scale(1);}
+  }
+  
+  #cryptoDropdown {
+    z-index: 99999 !important;
+  }
+  .card-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    background-color: #374151;
+  }
+  
+  .card-preview img {
+    pointer-events: none;
+  }
+  #cardBack .font-mono {
+    letter-spacing: 2px;
+  }
+  .ios-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, #19c7ff 0%, #8e76ff 100%);
+    border-radius: 20px;
+    box-shadow: 0 3px 30px 0 #19c7ff24;
+    transition: background 0.3s;
+    margin-top: 12px;
+    margin-bottom: 24px;
+  }
+  .ios-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 10px 0 #19c7ff50;
+    border: 3px solid #19c7ff;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s;
+    touch-action: pan-x;
+  }
+  .ios-slider:active::-webkit-slider-thumb {
+    border-color: #8e76ff;
+  }
+  .ios-slider:disabled::-webkit-slider-thumb {
+    background: #ccc;
+    border-color: #aaa;
+  }
+  

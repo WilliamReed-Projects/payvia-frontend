@@ -1,0 +1,598 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<script>
+    if (!localStorage.getItem("jwt")) {
+      window.location.replace("login.html");
+    }
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>payviaWallet - Dashboard</title>
+
+  
+
+  <!-- Tailwind CSS + Feather Icons + Chart.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+
+
+  <link rel="stylesheet" href="css/style2.css" />
+</head>
+
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <!-- Effet de fond flou violet -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30">
+  </div>
+
+  <!-- HEADER -->
+  <header class="flex justify-between items-center p-4 border-b border-gray-800">
+    <a href="index.html" class="flex items-center">
+  <img src="assets/logo-white2.png" alt="NeoWallet" class="h-7 w-auto rounded-lg shadow">
+</a>
+
+    <button id="notifBtn" class="relative">
+      <i data-feather="bell" class="w-6 h-6 text-white"></i>
+      <span class="notif-ping"></span>
+    </button>
+  </header>
+
+  <!-- SOLDE + GRAPHIQUE -->
+  <section class="p-4">
+    <div class="text-gray-400 text-sm">Solde Total</div>
+    <div class="text-3xl font-bold mb-2">0,00 €</div>
+    <div class="glass p-3 rounded-xl">
+      <canvas id="soldeChart" height="80"></canvas>
+    </div>
+  </section>
+
+
+
+  <!-- BOUTONS ACTIONS -->
+<section class="px-4 pt-4 pb-6 grid grid-cols-3 gap-3 text-sm text-center">
+
+
+    <button class="btn-glow flex flex-col items-center hover:scale-105 transition">
+      <i data-feather="send" class="mb-1"></i>
+      <span>Envoyer</span>
+    </button>
+    <button class="btn-glow flex flex-col items-center hover:scale-105 transition" onclick="window.location.href='recevoir.html'">
+  <i data-feather="download" class="mb-1"></i>
+  <span>Recevoir</span>
+</button>
+    <button class="btn-glow flex flex-col items-center hover:scale-105 transition"
+  onclick="window.location.href='historique.html'">
+  <i data-feather="clock" class="mb-1"></i>
+  <span>Historique</span>
+</button>
+
+  </section>
+
+  <!-- CARTES CRYPTOS -->
+  <section class="p-4 pt-0 space-y-4 pb-40" id="cryptoList"></section>
+
+
+
+  <!-- NAVIGATION MODERNE -->
+  <!-- NAVIGATION MODERNE -->
+  <nav class="glass nav-footer-modern">
+    <button class="nav-item-modern active">
+  <i data-feather="folder"></i>
+  <span>Portefeuille</span>
+</button>
+
+    <a href="carte-bancaire.html" class="nav-item-modern">
+      <i data-feather="credit-card"></i>
+      <span>Cartes</span>
+    </a>
+    <!-- Remplace le bouton Profil ainsi : -->
+    <button class="nav-item-modern" id="openAccountModalBtn">
+      <i data-feather="user"></i>
+      <span>Profil</span>
+    </button>
+  </nav>
+
+
+
+  <!-- MODALE CRYPTO -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-box text-center">
+      <h2 id="modalTitle" class="text-lg font-bold mb-1">Nom de la crypto</h2>
+      <div id="modalBalance" class="text-sm text-gray-300 mb-4">0.00</div>
+      <div class="flex justify-center space-x-4 mt-4">
+        <button class="btn-action w-32"  id="envoyerCryptoBtn">
+          <i data-feather="send" class="mb-1"></i>
+          <span>Envoyer</span>
+        </button>
+
+
+        <button class="btn-action w-32">
+          <i data-feather="download" class="mb-1"></i>
+          <span>Recevoir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE NOTIFICATIONS -->
+  <div id="notifModal" class="modal hidden">
+    <div class="modal-box text-center">
+      <h2 class="text-lg font-semibold mb-2">Notifications</h2>
+      <p class="text-sm text-gray-300">Aucune notification</p>
+    </div>
+  </div>
+
+  <!-- MODALE RECEVOIR -->
+  <div id="receiveModal" class="modal hidden">
+    <div class="modal-box text-center glass">
+      <img id="receiveLogo" src="" alt="Crypto logo" class="mx-auto w-16 h-16 mb-4" />
+      <canvas id="qrCanvas" class="mx-auto mb-4"></canvas>
+      <div class="font-bold text-base mb-2" id="receiveTitle">
+        Votre adresse Crypto
+      </div>
+      <div class="bg-white bg-opacity-10 p-2 rounded-lg flex items-center justify-between mb-3">
+        <span id="cryptoAddress" class="truncate text-sm">Adresse crypto</span>
+        <button id="copyBtn" class="ml-2 text-cyan-400 hover:text-cyan-200">
+          <i data-feather="copy"></i>
+        </button>
+      </div>
+      <p id="receiveText" class="text-gray-400 text-sm mb-4">
+        Recevoir Crypto
+      </p>
+      <button id="closeReceiveModal" class="btn-action w-full">
+        Terminer
+      </button>
+    </div>
+  </div>
+
+  <!-- MODALE MON COMPTE -->
+  <div id="accountModal" class="modal hidden z-[60]">
+    <div
+      class="modal-box account-modal-box-anim p-0 max-w-lg w-full h-full overflow-y-auto flex flex-col glass relative">
+      <!-- Header avec X -->
+      <div class="flex items-center p-4 border-b border-white/10">
+       <button id="closeAccountModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+  <i data-feather="x"></i>
+</button>
+        <span class="text-base font-bold tracking-wide text-cyan-400">Mon compte</span>
+      </div>
+
+
+      <!-- Contenu scrollable -->
+      <div class="flex-1 overflow-y-auto space-y-4 px-4 pb-8">
+
+
+
+        <!-- Profil -->
+        <div class="flex flex-col items-center mt-8 mb-4 px-4">
+          <div
+            class="w-20 h-20 rounded-full glass flex items-center justify-center text-3xl font-bold text-cyan-400 mb-2 shadow-lg">
+            
+          </div>
+          <div class="text-lg font-semibold"></div>
+          <div class="text-gray-400 mb-2 text-sm"></div>
+        </div>
+        <!-- Bloc inviter des amis -->
+        <div class="glass rounded-xl p-4 flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-3">
+            <i data-feather="user-plus" class="text-cyan-400"></i>
+            <span class="font-medium text-white">Inviter des amis</span>
+          </div>
+          <span class="text-cyan-300 font-bold text-lg">Gagnez 70€ ou +</span>
+        </div>
+        <!-- Bloc Aide / Compte / Boîte de réception -->
+        <div class="glass rounded-xl divide-y divide-white/5 shadow-sm">
+          <a href="contact2.html" class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="help-circle"></i>Aide
+          </a>
+          <a href="#" id="openAccountSettingsModalLink"
+            class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="user"></i>Compte
+          </a>
+
+         <a href="#" id="openInboxModal"
+   class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+  <i data-feather="inbox"></i>Boîte de réception
+</a>
+
+        </div>
+
+        <!-- MODALE INBOX -->
+<div id="inboxModal" class="modal hidden">
+  <div class="modal-box text-center">
+    <h2 class="text-lg font-semibold mb-2">Boîte de réception</h2>
+    <p class="text-sm text-gray-300">Aucun message pour le moment</p>
+  </div>
+</div>
+
+        <!-- Bloc Politique / Notifications / Nouveautés -->
+        <div class="glass rounded-xl divide-y divide-white/5 shadow-sm">
+          <a href="privacy2.html" class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="shield"></i>Politique de confidentialité
+          </a>
+          
+         <a href="#" id="openNewFeaturesModal" class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+  <i data-feather="zap"></i>Nouvelles fonctionnalités
+</a>
+        </div>
+        <!-- Bloc À propos / Déconnexion -->
+        <div class="glass rounded-xl divide-y divide-white/5 shadow-sm">
+        
+          <a href="#" id="logoutBtn" class="block p-4 font-medium text-pink-400 hover:text-pink-300 transition flex items-center gap-3 relative">
+  <i data-feather="power" class="logout-icon"></i>
+  <span>Se déconnecter</span>
+  <span id="logoutLoader" class="ml-2 hidden animate-spin w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full"></span>
+</a>
+
+        </div>
+        <!-- Footer version/app -->
+        <div class="text-center text-xs text-gray-500 p-4 mt-auto">
+          Version 10.83<br />
+          <span class="text-white/80">payviawallet France succursale de Neon Bank UAB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODALE INVITER DES AMIS -->
+  <div id="inviteModal" class="modal hidden z-[70]">
+    <div
+      class="modal-box invite-modal-box-anim p-0 max-w-lg w-full h-full overflow-y-auto flex flex-col glass relative">
+      <!-- Header retour + titre -->
+      <div class="flex items-center p-4 border-b border-white/10">
+        <button id="closeInviteModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+  <i data-feather="arrow-left"></i>
+</button>
+        <span class="text-base font-bold tracking-wide">Gagnez 70€ pour chaque ami invité !</span>
+      </div>
+
+      <!-- Timer avec icône -->
+      <div class="flex justify-center items-center text-sm text-gray-400 mt-2 mb-4 gap-2">
+        <i data-feather="clock" class="text-cyan-300 w-4 h-4"></i>
+        <span>Termine dans <span id="inviteDaysLeft" class="font-semibold text-cyan-300">14</span> jours</span>
+      </div>
+
+      <!-- Image en largeur maximale rectangle -->
+      <div class="flex justify-center mb-4 px-4">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&q=80"
+          alt="Ami" class="rounded-xl object-cover w-full max-w-[460px] h-36 shadow-md glass" />
+      </div>
+
+      <!-- Deadline -->
+      <div class="text-white text-base px-6 mb-1 text-center">
+        Vos amis ont jusqu’au <span id="inviteEndDate" class="font-bold"></span> pour :
+      </div>
+
+      <!-- Étapes à remplir -->
+      <div class="glass rounded-xl p-4 mx-4 mb-4 flex flex-col gap-4 shadow-sm">
+        <!-- ÉTAPE 1 -->
+        <div class="flex items-center gap-4">
+          <i data-feather="user-plus" class="text-cyan-300 w-7 h-7 flex-shrink-0"></i>
+          <span class="font-semibold text-base leading-snug">S’inscrire avec votre code parrainage.</span>
+        </div>
+        <!-- ÉTAPE 2 -->
+        <div>
+          <div class="flex items-center gap-4">
+            <i data-feather="dollar-sign" class="text-cyan-300 w-7 h-7 flex-shrink-0"></i>
+            <span class="font-semibold text-base leading-snug">Ajouter de l’argent sur leur compte</span>
+          </div>
+          <div class="pl-11 text-xs text-gray-400 -mt-1"></div>
+        </div>
+        <!-- ÉTAPE 3 -->
+        <div class="flex items-center gap-4">
+          <i data-feather="credit-card" class="text-cyan-300 w-7 h-7 flex-shrink-0"></i>
+          <span class="font-semibold text-base leading-snug">Commander une carte cadeau</span>
+        </div>
+        <!-- ÉTAPE 4 -->
+        <div>
+          <div class="flex items-center gap-4">
+            <i data-feather="shopping-cart" class="text-cyan-300 w-7 h-7 flex-shrink-0"></i>
+            <span class="font-semibold text-base leading-snug">Effectuer trois achats de 5€ minimum chacun</span>
+          </div>
+          <div class="pl-11 text-xs text-gray-400 -mt-1"></div>
+        </div>
+      </div>
+
+
+      <!-- Récompense -->
+      <div class="glass rounded-xl p-4 mx-4 mb-4 flex flex-col gap-2 shadow-sm">
+        <div class="flex items-center gap-3 mb-1">
+          <i data-feather="gift" class="text-cyan-300 w-5 h-5"></i>
+          <span class="font-bold text-white text-base">Votre récompense</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="font-semibold text-white">70€ pour chaque ami</span>
+        </div>
+        <div class="text-xs text-gray-400">
+          Vous gagnerez votre récompense <span class="font-semibold text-cyan-300">instantanément</span> quand vos amis
+          ont terminé toutes les étapes.
+        </div>
+      </div>
+
+      <!-- Centre d'aide -->
+      <a href="contact2.html" class="glass rounded-xl p-4 mx-4 mb-4 flex items-center gap-3 shadow-sm transition hover:bg-cyan-400/5 active:scale-95 cursor-pointer">
+        <i data-feather="help-circle" class="text-cyan-300 w-5 h-5"></i>
+        <span>Centre d’aide</span>
+</a>
+
+      <!-- Texte info -->
+      <div class="text-center text-xs text-gray-500 px-8 pb-4">
+        En rejoignant ce programme, vous confirmez avoir lu et accepté les avertissements ci-dessus ainsi que nos <a
+          href="terms.html" class="text-cyan-300 underline">Conditions générales</a>.
+      </div>
+
+      <!-- Bouton Inviter -->
+      <div class="flex justify-center pb-8">
+        <button id="showParrainCodeBtn"
+          class="bg-white text-black font-semibold rounded-full px-8 py-3 shadow-md hover:bg-cyan-100 transition">
+          Inviter des amis
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE CODE PARRAINAGE -->
+  <div id="parrainCodeModal" class="modal hidden z-[80]">
+    <div
+      class="modal-box glass flex flex-col items-center justify-center py-8 px-6 account-modal-box-anim max-w-xs mx-auto">
+      <i data-feather="user-plus" class="text-cyan-300 w-8 h-8 mb-2"></i>
+      <div class="text-lg font-bold mb-2">Votre code parrainage</div>
+      <div id="parrainCode" class="bg-black/70 px-6 py-2 rounded-xl text-cyan-300 font-mono text-xl mb-4">
+      </div>
+      <button id="copyParrainCodeBtn" class="btn-action btn-row w-full items-center justify-center py-2 mb-2 text-base">
+        <i data-feather="copy"></i>
+        <span>Copier le code</span>
+      </button>
+
+
+      <button id="closeParrainCodeBtn" class="btn-glow w-full mt-2 py-2 text-base">
+  Fermer
+</button>
+    </div>
+  </div>
+  <!-- MODALE COMPTE -->
+  <div id="accountSettingsModal" class="modal hidden z-[70]">
+    <div
+      class="modal-box account-modal-box-anim p-0 max-w-lg w-full h-full overflow-y-auto flex flex-col glass relative">
+      <!-- Header -->
+      <div class="flex items-center p-4 border-b border-white/10">
+  <button id="closeAccountSettingsModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+  <i data-feather="arrow-left"></i>
+</button>
+        <span class="text-2xl font-bold">Compte</span>
+      </div>
+      <!-- Sections -->
+      <div class="flex-1 overflow-y-auto space-y-4 px-4 py-6">
+        <!-- Bloc 1 -->
+        <div class="glass rounded-xl divide-y divide-white/5 shadow-sm">
+          <a href="#" id="openPersonalInfoModal"
+            class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="user"></i>
+            <div>
+              <div>Informations personnelles</div>
+              
+            </div>
+          </a>
+
+          <a href="#" id="openChangePasswordModal"
+            class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="key"></i>
+            Modifier le mot de passe
+          </a>
+
+        </div>
+        <!-- Bloc 2 -->
+        <div class="glass rounded-xl divide-y divide-white/5 shadow-sm">
+          <a href="privacy2.html" class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="file-text"></i>
+            Politique de confidentialité
+          </a>
+          <a href="terms.html" class="block p-4 font-medium hover:text-cyan-400 transition flex items-center gap-3">
+            <i data-feather="info"></i>
+            Conditions générales
+          </a>
+        </div>
+        <!-- Bloc 3 -->
+        <div class="glass rounded-xl shadow-sm">
+          <a href="#" id="openCloseAccountModal"
+            class="block p-4 font-medium text-pink-400 hover:text-pink-300 transition flex items-center gap-3">
+            <i data-feather="heart" class="text-pink-400"></i>
+            Fermer le compte
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- MODALE INFOS PERSONNELLES -->
+<div id="personalInfoModal" class="modal hidden z-[80]">
+  <div class="modal-box account-modal-box-anim p-0 max-w-lg w-full max-h-[calc(100dvh-24px)] overflow-y-auto flex flex-col glass relative">
+    <!-- Header (défile avec le contenu) -->
+    <div class="flex items-center p-4 border-b border-white/10 flex-shrink-0 bg-transparent">
+      <button id="closePersonalInfoModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+        <i data-feather="arrow-left"></i>
+      </button>
+      <span class="text-2xl font-bold">Modifier le profil</span>
+      <div class="ml-auto flex items-center">
+        <div class="w-11 h-11 rounded-full bg-gray-600/70 flex items-center justify-center text-xl font-bold ml-2">
+          KO
+        </div>
+      </div>
+    </div>
+    <!-- Contenu scrollable -->
+    <div class="px-5 py-6 space-y-4 min-h-0">
+      <div class="text-lg font-semibold mb-2">Renseignements personnels</div>
+      <!-- Nom -->
+      <div>
+        <div class="text-xs mb-1">Nom</div>
+        <input type="text" id="inputName" class="input-glass" value="Karim Omerta" disabled />
+      </div>
+      <!-- NeoTag -->
+      <div>
+        <div class="text-xs mb-1">Neotag</div>
+        <input type="text" id="inputNeotag" class="input-glass" value="@komerta93" disabled />
+      </div>
+      <!-- Date de naissance -->
+      <div>
+        <div class="text-xs mb-1">Date de naissance</div>
+        <input type="text" id="inputBirth" class="input-glass text-gray-400" value="1 janv. 1990" disabled />
+      </div>
+      <!-- Adresse -->
+      <div>
+        <div class="text-xs mb-1">Adresse de résidence</div>
+        <input type="text" id="inputAddress" class="input-glass" value="123 Rue de Paris, 75000 Paris" disabled />
+      </div>
+      <!-- Téléphone -->
+      <div>
+        <div class="text-xs mb-1">Numéro de téléphone</div>
+        <input type="text" id="inputPhone" class="input-glass" value="+33 6 44 78 99 63" disabled />
+      </div>
+      <!-- E-mail -->
+      <div>
+        <div class="text-xs mb-1">E-mail</div>
+        <input type="email" id="inputMail" class="input-glass border-pink-400 bg-pink-800/20"
+          value="mail@neowallet.com" disabled />
+      </div>
+      <!-- Infos complémentaires -->
+      <div class="text-lg font-semibold mb-2 mt-5">Informations complémentaires</div>
+      <div>
+        <div class="text-xs mb-1">Résidences fiscales</div>
+        <input type="text" id="inputTax" class="input-glass" value="France" disabled />
+      </div>
+      <div class="pb-8"></div> <!-- Padding bas pour ne rien coller à la barre d’outils -->
+    </div>
+  </div>
+</div>
+
+<div id="changePasswordModal" class="modal hidden z-[90]">
+  <div class="modal-box account-modal-box-anim p-0 max-w-lg w-full min-h-[45vh] flex flex-col glass relative max-h-[calc(100dvh-24px)] overflow-y-auto">
+    <!-- Header -->
+    <div class="flex items-center p-4 border-b border-white/10">
+      <button id="closeChangePasswordModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+        <i data-feather="arrow-left"></i>
+      </button>
+      <span class="text-2xl font-bold">Changer le mot de passe</span>
+    </div>
+    <!-- Formulaire -->
+ <div class="flex-1 overflow-y-auto space-y-4 px-5 py-6 pb-24">
+  <div>
+    <div class="text-xs mb-1">Ancien mot de passe</div>
+    <input type="password" id="inputOldPwd" class="input-glass" />
+  </div>
+  <div>
+    <div class="text-xs mb-1">Nouveau mot de passe</div>
+    <input type="password" id="inputNewPwd" class="input-glass" />
+  </div>
+  <div>
+    <div class="text-xs mb-1">Confirmer le nouveau mot de passe</div>
+    <input type="password" id="inputConfirmPwd" class="input-glass" />
+  </div>
+  <!-- MESSAGE ERREUR ici, AVANT le sticky ! -->
+  <div id="pwdErrorMsg" class="text-pink-400 text-center font-semibold text-base mb-3 hidden"></div>
+</div>
+<div class="sticky left-0 bottom-0 w-full flex justify-center pb-7 bg-transparent z-10">
+  <button id="savePwdBtn"
+    class="bg-cyan-400 text-black font-bold rounded-full px-8 py-3 shadow-lg transition flex items-center gap-2">
+    <span id="savePwdLoader"
+      class="hidden animate-spin border-2 border-cyan-900 border-t-transparent rounded-full w-5 h-5"></span>
+    <span>Sauvegarder</span>
+  </button>
+</div>
+
+  </div>
+</div>
+
+  <!-- MODALE FERMER LE COMPTE -->
+  <div id="closeAccountModal" class="modal hidden z-[99]">
+    <div class="modal-box account-modal-box-anim p-0 max-w-lg w-full min-h-[40vh] flex flex-col glass relative">
+      <!-- Header -->
+      <div class="flex items-center p-4 border-b border-white/10">
+        <button id="closeCloseAccountModal" class="text-white text-2xl hover:text-cyan-400 transition mr-3">
+  <i data-feather="arrow-left"></i>
+</button>
+        <span class="text-2xl font-bold text-pink-400">Fermer le compte</span>
+      </div>
+      <div class="flex-1 overflow-y-auto space-y-5 px-5 py-8">
+        <div class="text-lg font-semibold text-pink-400 flex items-center gap-2 mb-2">
+          <i data-feather="alert-triangle"></i>
+          Êtes-vous sûr de vouloir fermer votre compte ?
+        </div>
+        <div class="text-base text-white/90 mb-2">
+          <strong>Attention !</strong> La fermeture du compte est <span
+            class="text-pink-400 font-semibold">définitive</span>.<br>
+          <br>
+          Si vous avez de l’argent sur votre compte, il sera <span class="text-pink-400">perdu</span> et aucun
+          remboursement ne sera possible.<br>
+          <br>
+          Si vous avez des paiements en cours (<span class="text-cyan-300">paiement en plusieurs fois</span>), vous
+          devez d’abord <strong>régler tous vos paiements</strong> avant de fermer votre compte.
+        </div>
+        <div class="glass rounded-xl p-4 flex items-center gap-3 shadow-sm bg-pink-900/20">
+          <i data-feather="heart" class="text-pink-400"></i>
+          <span class="text-pink-200">Cette action est irréversible.</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2 justify-center items-center pb-6">
+        <button id="confirmCloseAccountBtn"
+          class="bg-pink-400 text-black font-bold rounded-full px-8 py-3 shadow-lg transition flex items-center gap-2">
+          <span id="closeAccountLoader"
+            class="hidden animate-spin border-2 border-pink-900 border-t-transparent rounded-full w-5 h-5"></span>
+          <span>Confirmer la fermeture</span>
+        </button>
+        <div class="text-xs text-gray-500 mt-2 text-center max-w-xs">
+          Je confirme avoir pris connaissance des conséquences et souhaite fermer définitivement mon compte.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE NOUVELLES FONCTIONNALITÉS -->
+<div id="newFeaturesModal" class="modal hidden z-[95]">
+  <div class="modal-box appear-anim glass max-w-lg w-full text-center">
+    <h2 class="text-lg font-bold text-cyan-400 mb-2">Nouvelles fonctionnalités</h2>
+    <p class="text-sm text-gray-300 mb-4">
+      Cette section vous tiendra informé des dernières mises à jour et ajouts dans payviaWallet.
+    </p>
+    <div class="glass p-4 rounded-xl text-sm text-white/70 flex items-center justify-center gap-2">
+      <i data-feather="zap" class="text-cyan-300 w-5 h-5"></i>
+      De nouvelles fonctionnalités s’afficheront ici.
+    </div>
+    <button id="closeNewFeaturesModal" class="btn-glow-secondary mt-6 px-6 py-2">
+      Fermer
+    </button>
+  </div>
+</div>
+
+<div id="alertModal" class="modal hidden">
+  <div class="modal-box text-center glass appear-anim">
+    <div class="text-lg font-bold mb-2 text-pink-400">
+      Solde insuffisant
+    </div>
+    <div class="text-white mb-1">Déposez d'abord de l'argent pour utiliser l'envoi.</div>
+  </div>
+</div>
+
+<div id="successModal" class="modal hidden">
+  <div class="modal-box text-center glass appear-anim">
+    <div class="text-lg font-bold mb-2 text-cyan-400" id="successMsg">
+      Mot de passe changé avec succès !
+    </div>
+  </div>
+</div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+
+
+  <script src="js/script2.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+
+</html>

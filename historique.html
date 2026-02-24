@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+  <script>
+    if (!localStorage.getItem("jwt")) {
+      window.location.replace("login.html");
+    }
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Historique - NeoWallet</title>
+  <link rel="stylesheet" href="style.css" />
+
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
+
+  <!-- HEADER -->
+  <header class="flex items-center justify-between p-4 border-b border-gray-800 gap-4 header-animate show">
+  <div class="flex items-center gap-4">
+    <a href="dashboard2.html" class="text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left w-6 h-6"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <h1 class="text-xl font-bold text-cyan-400">Historique de transactions</h1>
+  </div>
+  <img src="assets/logo-white2.png" alt="Logo" class="h-7 w-auto rounded shadow">
+</header>
+  <main class="flex flex-col items-center justify-center min-h-[80vh] px-4 appear-anim">
+    <div class="glass card-animate w-full max-w-md p-7 rounded-2xl shadow-xl flex flex-col items-center gap-4">
+      
+      <div class="text-center text-2xl font-bold mb-1">Aucune transaction</div>
+      <div class="text-center text-gray-300 text-sm mb-2">
+        Tu n’as pas encore effectué de transaction.<br>
+        Lorsque tu utiliseras payviaWallet, elles s’afficheront ici automatiquement.
+      </div>
+      <a href="dashboard2.html" class="btn-glow-secondary flex items-center gap-2 px-7 py-2 rounded-xl text-cyan-400 font-bold transition hover:scale-105 focus:outline-none mt-1">
+        <i data-feather="arrow-left"></i>
+        Retour à l’accueil
+      </a>
+    </div>
+  </main>
+
+  <script>
+    feather.replace();
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        document.querySelector('.appear-anim')?.classList.add('show');
+        document.querySelector('.card-animate')?.classList.add('show');
+      }, 80);
+    });
+  </script>
+</body>
+</html>
