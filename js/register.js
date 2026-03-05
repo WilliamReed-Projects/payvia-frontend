@@ -61,9 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || "Erreur d’envoi de mail.");
         return;
       }
-      if (data && data.debugCode) {
-        alert(`Code temporaire: ${data.debugCode}`);
-      }
       currentStep = 2;
       showStep(currentStep);
     } catch (err) {
@@ -120,9 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!resp.ok) {
         alert(data.error || "Erreur d’envoi de mail.");
         return;
-      }
-      if (data && data.debugCode) {
-        alert(`Code temporaire: ${data.debugCode}`);
       }
       alert("Nouveau code envoyé par email !");
     } catch (err) {
