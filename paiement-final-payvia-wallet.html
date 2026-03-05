@@ -167,7 +167,7 @@
 
     // Conversion montant en crypto
     async function updateCryptoAmount() {
-      const apiUrl = "https://mon-backend-node-production.up.railway.app/api/crypto-price?crypto=" + encodeURIComponent(cryptoCode);
+      const apiUrl = "https://soldora-backend-backend.up.railway.app/api/crypto-price?crypto=" + encodeURIComponent(cryptoCode);
       let amountCrypto = 0;
       try {
         const resp = await fetch(apiUrl);
@@ -195,7 +195,7 @@ const cryptoName = (cryptoData[cryptoCode] && cryptoData[cryptoCode].name) || cr
 
 // Envoi du mail (une seule fois à l’arrivée sur la page)
 if (email && commandeNum && total) {
-  fetch("https://ton-backend.fr/api/send-pending-payment-mail", {
+  fetch("https://soldora-backend-backend.up.railway.app/api/send-pending-payment-mail", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

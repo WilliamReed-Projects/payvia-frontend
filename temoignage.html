@@ -141,7 +141,7 @@
 
       // Envoi
       try {
-        const resp = await fetch('https://mon-backend-node-production.up.railway.app/temoignage', {
+        const resp = await fetch('https://soldora-backend-backend.up.railway.app/api/temoignage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nom, prenom, date_achat, montant, produit, commentaire, note })
