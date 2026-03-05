@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showStep(1);
 
-  const API_BASE = "http://localhost:3000/";
-  const BASE = "http://localhost:5500/";
+  const API_BASE = "https://soldora-backend-backend.up.railway.app/";
+  const BASE = "/";
 
 
   // ETAPE 1 : Email
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentStep = 7;
       showStep(currentStep);
       window.setTimeout(() => {
-        window.location.href = `${BASE}frontend/login.html`;
+        window.location.href = `${BASE}login.html`;
       }, 1300);
 
     } catch (err) {

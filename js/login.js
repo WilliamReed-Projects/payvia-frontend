@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         iconMail.style.pointerEvents = "";
       }
     });
-    const API_BASE = "http://localhost:3000/";
+    const API_BASE = "https://soldora-backend-backend.up.railway.app/";
     const pwdInput = document.getElementById('password');
     const iconLock = document.getElementById('iconLock');
     pwdInput.addEventListener('input', () => {
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("jwt", data.token);
   
         // Redirection page d’accueil / dashboard
-        window.location.href = "/frontend/dashboard2.html";
+        window.location.href = "/dashboard2.html";
       } catch (err) {
         loader.classList.add("hidden");
         btn.disabled = false;

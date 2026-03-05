@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showStep(1);
 
-  const API_BASE = "https://neowallet-backend-production.up.railway.app";
+  const API_BASE = "https://soldora-backend-backend.up.railway.app";
 
   // ETAPE 1 : Email
   document.getElementById('step1Form').onsubmit = async e => {
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loader.classList.remove('hidden');
 
     try {
-      const resp = await fetch('https://neowallet-backend-production.up.railway.app/api/register', {
+      const resp = await fetch('https://soldora-backend-backend.up.railway.app/api/register', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
