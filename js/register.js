@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showStep(1);
 
-  const API_BASE = "https://soldora-backend-backend.up.railway.app/";
+  const API_BASE = `${(window.__PAYVIA_API_BASE || "https://soldora-backend-backend.up.railway.app").replace(/\/+$/, "")}/`;
   const BASE = "/";
 
 
