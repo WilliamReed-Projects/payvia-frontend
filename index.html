@@ -272,7 +272,7 @@
       if (!container) return;
       container.innerHTML = "<div style='color:#789; font-size:1.04em; margin:18px 0;'>Chargement des avis...</div>";
       try {
-        const res = await fetch('https://mon-backend-node-production.up.railway.app/temoignages-valides');
+        const res = await fetch('https://soldora-backend-backend.up.railway.app/api/temoignages-valides');
         const temoignages = await res.json();
         if (!Array.isArray(temoignages) || !temoignages.length) {
           container.innerHTML = "<div style='color:#789; font-size:1.05em; margin:18px 0;'>Aucun avis client validé pour le moment.</div>";
