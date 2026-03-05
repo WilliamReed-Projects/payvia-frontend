@@ -19,6 +19,9 @@ if (localStorage.getItem("jwt")) {
   <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body class="bg-[#0f0f0f] text-white font-sans relative overflow-x-hidden">
+  <script>
+    window.__PAYVIA_API_BASE = "https://soldora-backend-backend.up.railway.app";
+  </script>
 
   <!-- BG EFFET VIOLET -->
   <div class="absolute inset-0 -z-10 bg-gradient-to-br from-[#2e0249] via-[#57059e] to-[#0f0f0f] blur-2xl opacity-30"></div>
@@ -95,7 +98,7 @@ if (localStorage.getItem("jwt")) {
 
   </main>
 
-  <script src="js/login.js"></script>
+  <script src="js/login.js?v=20260305"></script>
   <script>feather.replace()</script>
 </body>
 </html>
