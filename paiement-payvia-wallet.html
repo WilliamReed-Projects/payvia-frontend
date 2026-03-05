@@ -164,6 +164,21 @@ footer img {
     function randomOrderNum() {
       return "#PDR" + Math.floor(100000 + Math.random()*900000);
     }
+    function getCartTotal() {
+      const fromStoredTotal = parseFloat(localStorage.getItem("totalPanier") || "");
+      if (Number.isFinite(fromStoredTotal) && fromStoredTotal > 0) return fromStoredTotal;
+      try {
+        const panier = JSON.parse(localStorage.getItem("panier") || "[]");
+        if (!Array.isArray(panier)) return 0;
+        return panier.reduce((sum, item) => {
+          const amount = Number(item?.amount || 0);
+          const qty = Number(item?.qty || 0);
+          return sum + (Number.isFinite(amount) ? amount : 0) * (Number.isFinite(qty) ? qty : 0);
+        }, 0);
+      } catch {
+        return 0;
+      }
+    }
     function showLoader() {
       document.getElementById('payviaLoader').classList.remove('hidden');
       document.body.classList.add('noscroll');
@@ -197,8 +212,9 @@ footer img {
       document.getElementById('step3').classList.remove('hidden');
       setTimeout(() => document.getElementById('step3').classList.add('show'), 40);
       // Affiche le total et numéro de commande ici
-      const total = localStorage.getItem("totalPanier") || "--";
-      document.getElementById('afficheTotal').textContent = total + " €";
+      const total = getCartTotal();
+      localStorage.setItem("totalPanier", String(total));
+      document.getElementById('afficheTotal').textContent = (total > 0 ? total.toFixed(2) : "--") + " €";
       const cmdNum = randomOrderNum();
       document.getElementById('commandeNum').textContent = cmdNum;
       localStorage.setItem("payvia_guest_commande", cmdNum);
