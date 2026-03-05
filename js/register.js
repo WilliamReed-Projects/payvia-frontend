@@ -14,7 +14,10 @@ function showStep(n) {
     setTimeout(() => current.classList.add('show'), 30);
     current.style.display = 'flex';
   }
-  document.getElementById('progressBar').style.width = `${((n-1)/(STEPS-1))*100}%`;
+  const progressBar = document.getElementById('progressBar');
+  if (progressBar) {
+    progressBar.style.width = `${((n-1)/(STEPS-1))*100}%`;
+  }
   if (window.feather) feather.replace();
 }
 
@@ -31,11 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const BASE = "/";
 
 
+  const step1Form = document.getElementById('step1Form');
+  const step2Form = document.getElementById('step2Form');
+  const resendCodeBtn = document.getElementById('resendCodeBtn');
+  const registerEmailInput = document.getElementById('registerEmail');
+  const displayEmail = document.getElementById('displayEmail');
+  const registerCodeInput = document.getElementById('registerCode');
+  const codeError = document.getElementById('codeError');
+  const hasStep3 = !!document.querySelector('.register-step[data-step="3"]');
+
   // ETAPE 1 : Email
-  document.getElementById('step1Form').onsubmit = async e => {
+  if (step1Form) step1Form.onsubmit = async e => {
     e.preventDefault();
-    const email = document.getElementById('registerEmail').value;
-    document.getElementById('displayEmail').textContent = email;
+    const email = registerEmailInput?.value;
+    if (!email) return;
+    if (displayEmail) displayEmail.textContent = email;
 
     try {
       const resp = await fetch(`${API_BASE}api/send-code`, {
@@ -48,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || "Erreur d’envoi de mail.");
         return;
       }
+      if (data && data.debugCode) {
+        alert(`Code temporaire: ${data.debugCode}`);
+      }
       currentStep = 2;
       showStep(currentStep);
     } catch (err) {
@@ -56,10 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ETAPE 2 : Code
-  document.getElementById('step2Form').onsubmit = async e => {
+  if (step2Form) step2Form.onsubmit = async e => {
     e.preventDefault();
-    const code = document.getElementById('registerCode').value;
-    const email = document.getElementById('registerEmail').value;
+    const code = registerCodeInput?.value;
+    const email = registerEmailInput?.value;
+    if (!email || !code) return;
 
     try {
       const resp = await fetch(`${API_BASE}api/verify-code`, {
@@ -70,24 +87,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await resp.json();
 
       if (data.success) {
-        currentStep = 3;
-        showStep(currentStep);
+        if (hasStep3) {
+          currentStep = 3;
+          showStep(currentStep);
+        } else {
+          window.location.href = `${BASE}login.html`;
+        }
       } else {
-        document.getElementById('registerCode').classList.add('border-pink-400');
-        document.getElementById('codeError').textContent = "Code incorrect ou expiré.";
+        if (registerCodeInput) registerCodeInput.classList.add('border-pink-400');
+        if (codeError) codeError.textContent = "Code incorrect ou expiré.";
         setTimeout(() => {
-          document.getElementById('registerCode').classList.remove('border-pink-400');
-          document.getElementById('codeError').textContent = "";
+          if (registerCodeInput) registerCodeInput.classList.remove('border-pink-400');
+          if (codeError) codeError.textContent = "";
         }, 1500);
       }
     } catch (err) {
-      document.getElementById('codeError').textContent = "Erreur réseau.";
+      if (codeError) codeError.textContent = "Erreur réseau.";
     }
   };
 
   // ETAPE 2 BIS : Renvoyer le code
-  document.getElementById('resendCodeBtn').onclick = async () => {
-    const email = document.getElementById('registerEmail').value;
+  if (resendCodeBtn) resendCodeBtn.onclick = async () => {
+    const email = registerEmailInput?.value;
+    if (!email) return;
     try {
       const resp = await fetch(`${API_BASE}api/send-code`, {
         method: "POST",
@@ -98,6 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!resp.ok) {
         alert(data.error || "Erreur d’envoi de mail.");
         return;
+      }
+      if (data && data.debugCode) {
+        alert(`Code temporaire: ${data.debugCode}`);
       }
       alert("Nouveau code envoyé par email !");
     } catch (err) {
@@ -110,20 +135,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const ruleLength = document.getElementById('rule-length');
   const ruleDigit = document.getElementById('rule-digit');
   const ruleUpper = document.getElementById('rule-upper');
-  pwdInput.oninput = () => {
+  if (pwdInput && ruleLength && ruleDigit && ruleUpper) pwdInput.oninput = () => {
     const val = pwdInput.value;
     ruleLength.classList.toggle('valid', val.length >= 8 && val.length <= 26);
     ruleDigit.classList.toggle('valid', /\d/.test(val));
     ruleUpper.classList.toggle('valid', /[A-Z]/.test(val));
   };
-  document.getElementById('toggleRegisterPwd').onclick = e => {
+  const toggleRegisterPwd = document.getElementById('toggleRegisterPwd');
+  if (toggleRegisterPwd && pwdInput) toggleRegisterPwd.onclick = e => {
     e.preventDefault();
     pwdInput.type = pwdInput.type === "password" ? "text" : "password";
-    document.getElementById('toggleRegisterPwd').innerHTML =
+    toggleRegisterPwd.innerHTML =
       `<i data-feather="${pwdInput.type === "password" ? "eye" : "eye-off"}"></i>`;
     if(window.feather) feather.replace();
   };
-  document.getElementById('step3Form').onsubmit = e => {
+  const step3Form = document.getElementById('step3Form');
+  if (step3Form && pwdInput) step3Form.onsubmit = e => {
     e.preventDefault();
     if (
       pwdInput.value.length >= 8 && pwdInput.value.length <= 26 &&
@@ -149,7 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  document.getElementById('step4Form').onsubmit = e => {
+  const step4Form = document.getElementById('step4Form');
+  if (step4Form) step4Form.onsubmit = e => {
     e.preventDefault();
     currentStep = 5;
     showStep(currentStep);
@@ -162,25 +190,30 @@ document.addEventListener('DOMContentLoaded', () => {
     "Pologne", "Roumanie", "Cameroun", "Algérie", "Madagascar", "Israël", "Japon", "Chine", "Russie", "Australie", "Brésil"
   ];
   const select = document.getElementById('countrySelect');
-  countryList.forEach(pays => {
-    const opt = document.createElement('option');
-    opt.value = pays;
-    opt.textContent = pays;
-    select.appendChild(opt);
-  });
-  select.value = "France";
-  document.getElementById('step5Form').onsubmit = e => {
+  if (select) {
+    countryList.forEach(pays => {
+      const opt = document.createElement('option');
+      opt.value = pays;
+      opt.textContent = pays;
+      select.appendChild(opt);
+    });
+    select.value = "France";
+  }
+  const step5Form = document.getElementById('step5Form');
+  if (step5Form) step5Form.onsubmit = e => {
     e.preventDefault();
     currentStep = 6;
     showStep(currentStep);
 
   };
-  document.getElementById('openTerms').onclick = e => {
+  const openTerms = document.getElementById('openTerms');
+  if (openTerms) openTerms.onclick = e => {
     e.preventDefault();
     alert('Conditions générales (à personnaliser plus tard)');
   };
 
-  document.getElementById('step6Form').onsubmit = async e => {
+  const step6Form = document.getElementById('step6Form');
+  if (step6Form) step6Form.onsubmit = async e => {
     e.preventDefault();
 
     // Récupération et sécurisation des champs

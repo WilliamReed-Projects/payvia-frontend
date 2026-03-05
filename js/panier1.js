@@ -166,32 +166,40 @@ document.getElementById('promo-form').onsubmit = function (e) {
   }, 1200);
 };
 
-document.getElementById('btn-order').onclick = function () {
-  if (!panier || panier.length === 0) return;
-  this.disabled = true;
-  document.querySelector('.btn-order-text').style.opacity = "0.5";
-  document.getElementById('btn-order-loader').style.display = "inline-flex";
-  setTimeout(() => {
-    window.location.href = "commander.html";
-  }, 1200);
-};
+const btnOrder = document.getElementById('btn-order');
+if (btnOrder) {
+  btnOrder.onclick = function () {
+    if (!panier || panier.length === 0) return;
+    this.disabled = true;
+    const text = this.querySelector('.btn-order-text');
+    if (text) text.style.opacity = "0.5";
+    const loader = document.getElementById('btn-order-loader');
+    if (loader) loader.style.display = "inline-flex";
+    setTimeout(() => {
+      window.location.href = "commander.html";
+    }, 1200);
+  };
+}
 
 // Génère un numéro de commande aléatoire au format RC-XXXXX (ex : RC-49583)
 function generateOrderNumber() {
   return 'RC-' + Math.floor(10000 + Math.random() * 90000);
 }
-document.getElementById('btn-order-guest').onclick = function () {
-  if (!panier || panier.length === 0) return;
+const btnOrderGuest = document.getElementById('btn-order-guest');
+if (btnOrderGuest) {
+  btnOrderGuest.onclick = function () {
+    if (!panier || panier.length === 0) return;
 
-  // Génère un token d’accès unique (6 chiffres ou plus)
-  const accessToken = Math.random().toString(36).substr(2, 12) + Date.now();
-  localStorage.setItem("payvia_access", accessToken);
+    // Génère un token d’accès unique (6 chiffres ou plus)
+    const accessToken = Math.random().toString(36).substr(2, 12) + Date.now();
+    localStorage.setItem("payvia_access", accessToken);
 
-  // Redirection avec le token en paramètre
-  setTimeout(() => {
-    window.location.href = "paiement-payvia-wallet.html?access=" + encodeURIComponent(accessToken);
-  }, 4000);
-};
+    // Redirection avec le token en paramètre
+    setTimeout(() => {
+      window.location.href = "paiement-payvia-wallet.html?access=" + encodeURIComponent(accessToken);
+    }, 400);
+  };
+}
 
 
 function resetCommanderGuestButton() {
